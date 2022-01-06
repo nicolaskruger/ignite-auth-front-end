@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { createContext, FC, useContext, useState } from "react";
+import { setCookie } from "nookies";
 import { api } from "../services/api";
 
 type User = {
@@ -37,6 +38,15 @@ export const AuthProvider: FC = ({ children }) => {
             })
 
             const { token, refreshToken, permissions, roles } = response.data;
+
+            setCookie(undefined, "nexauth.token", token, {
+                maxAge: 60 * 60 * 24 * 30,
+                path: "/"
+            });
+            setCookie(undefined, "nexauth.refreshToken", refreshToken, {
+                maxAge: 60 * 60 * 24 * 30,
+                path: "/"
+            });
 
             setUser({
                 email,
