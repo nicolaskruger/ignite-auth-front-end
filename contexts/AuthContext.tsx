@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
-import { createContext, FC, useContext, useState } from "react";
-import { setCookie } from "nookies";
+import { createContext, FC, useContext, useEffect, useState } from "react";
+import { setCookie, parseCookies } from "nookies";
 import { api } from "../services/api";
+import { HeadersDefaults } from "axios";
 
 type User = {
     email: string,
@@ -25,10 +26,22 @@ export const AuthContext = createContext({} as AuthContextData)
 export const AuthProvider: FC = ({ children }) => {
 
     const router = useRouter();
-
     const [user, setUser] = useState<User>();
-
     const isAuthenticated = !!user;
+
+    useEffect(() => {
+        const { "nextauth.token": token } = parseCookies();
+
+        if (token) {
+            api.get("/me")
+                .then(response => {
+                    setUser({
+                        ...response.data
+                    })
+                })
+        }
+
+    }, [])
 
     const sigIn = async ({ email, password }: SigInCredentials) => {
         try {
@@ -39,11 +52,11 @@ export const AuthProvider: FC = ({ children }) => {
 
             const { token, refreshToken, permissions, roles } = response.data;
 
-            setCookie(undefined, "nexauth.token", token, {
+            setCookie(undefined, "nextauth.token", token, {
                 maxAge: 60 * 60 * 24 * 30,
                 path: "/"
             });
-            setCookie(undefined, "nexauth.refreshToken", refreshToken, {
+            setCookie(undefined, "nextauth.refreshToken", refreshToken, {
                 maxAge: 60 * 60 * 24 * 30,
                 path: "/"
             });
@@ -52,7 +65,9 @@ export const AuthProvider: FC = ({ children }) => {
                 email,
                 permissions,
                 roles
-            })
+            });
+
+            (api.defaults.headers as { Authorization: string } & HeadersDefaults)["Authorization"] = `Baerer ${token}`;
 
             router.push("/dashboard")
         } catch (error) {
