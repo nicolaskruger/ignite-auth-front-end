@@ -1,6 +1,6 @@
-import { useRouter } from "next/router";
+import Router from "next/router";
 import { createContext, FC, useContext, useEffect, useState } from "react";
-import { setCookie, parseCookies } from "nookies";
+import { setCookie, parseCookies, destroyCookie } from "nookies";
 import { api } from "../services/api";
 import { HeadersDefaults } from "axios";
 
@@ -23,9 +23,14 @@ type AuthContextData = {
 
 export const AuthContext = createContext({} as AuthContextData)
 
+export function signOut() {
+    destroyCookie(undefined, "nextauth.token")
+    destroyCookie(undefined, "nextauth.refreshToken")
+    Router.push("/")
+}
+
 export const AuthProvider: FC = ({ children }) => {
 
-    const router = useRouter();
     const [user, setUser] = useState<User>();
     const isAuthenticated = !!user;
 
@@ -38,6 +43,9 @@ export const AuthProvider: FC = ({ children }) => {
                     setUser({
                         ...response.data
                     })
+                })
+                .catch(error => {
+                    signOut()
                 })
         }
 
@@ -67,9 +75,11 @@ export const AuthProvider: FC = ({ children }) => {
                 roles
             });
 
-            (api.defaults.headers as { Authorization: string } & HeadersDefaults)["Authorization"] = `Baerer ${token}`;
+            (api.defaults.headers as
+                { Authorization: string } & HeadersDefaults)
+            ["Authorization"] = `Baerer ${token}`;
 
-            router.push("/dashboard")
+            Router.push("/dashboard")
         } catch (error) {
             console.log(error)
         }

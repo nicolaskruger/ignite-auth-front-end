@@ -9,6 +9,9 @@ const DashBoard: NextPage = () => {
 
     useEffect(() => {
         api.get("/me")
+            .catch(error => {
+
+            })
     }, [])
 
     return (
