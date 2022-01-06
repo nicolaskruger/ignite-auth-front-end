@@ -1,4 +1,5 @@
 import { createContext, FC, useContext } from "react";
+import { api } from "../services/api";
 
 type SigInCredentials = {
     email: string,
@@ -17,11 +18,15 @@ export const AuthProvider: FC = ({ children }) => {
     const isAuthenticated = false;
 
     const sigIn = async ({ email, password }: SigInCredentials) => {
-        console.log({
-            email,
-            password
-        });
-
+        try {
+            const response = await api.post('/sessions', {
+                email,
+                password
+            })
+            console.log(response)
+        } catch (error) {
+            console.log(error)
+        }
     }
     return (
         <AuthContext.Provider value={{
