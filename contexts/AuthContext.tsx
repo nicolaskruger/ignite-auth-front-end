@@ -1,5 +1,12 @@
-import { createContext, FC, useContext } from "react";
+import { useRouter } from "next/router";
+import { createContext, FC, useContext, useState } from "react";
 import { api } from "../services/api";
+
+type User = {
+    email: string,
+    permissions: string[],
+    roles: string[]
+}
 
 type SigInCredentials = {
     email: string,
@@ -9,13 +16,18 @@ type SigInCredentials = {
 type AuthContextData = {
     sigIn: (credentials: SigInCredentials) => Promise<void>,
     isAuthenticated: boolean,
+    user: User
 }
 
 export const AuthContext = createContext({} as AuthContextData)
 
 export const AuthProvider: FC = ({ children }) => {
 
-    const isAuthenticated = false;
+    const router = useRouter();
+
+    const [user, setUser] = useState<User>();
+
+    const isAuthenticated = !!user;
 
     const sigIn = async ({ email, password }: SigInCredentials) => {
         try {
@@ -23,7 +35,16 @@ export const AuthProvider: FC = ({ children }) => {
                 email,
                 password
             })
-            console.log(response)
+
+            const { token, refreshToken, permissions, roles } = response.data;
+
+            setUser({
+                email,
+                permissions,
+                roles
+            })
+
+            router.push("/dashboard")
         } catch (error) {
             console.log(error)
         }
@@ -31,7 +52,8 @@ export const AuthProvider: FC = ({ children }) => {
     return (
         <AuthContext.Provider value={{
             isAuthenticated,
-            sigIn
+            sigIn,
+            user: user as User
         }}>
             {children}
         </AuthContext.Provider>
