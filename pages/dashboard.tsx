@@ -1,9 +1,15 @@
 import { NextPage } from "next";
+import { useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { api } from "../services/api";
 
 const DashBoard: NextPage = () => {
 
     const { user } = useAuth();
+
+    useEffect(() => {
+        api.get("/me")
+    }, [])
 
     return (
         <h1>
