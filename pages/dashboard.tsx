@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import { destroyCookie } from "nookies";
 import { useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { setupApiClient } from "../services/api";
@@ -32,16 +33,7 @@ export const getServerSideProps = withSSRAuth<Result>(async (ctx) => {
 
     const api = setupApiClient(ctx)
 
-    try {
-        const response = await api.get("/me");
-
-        console.log(response.data);
-    } catch (error) {
-        console.log(error)
-    }
-
-
-
+    const response = await api.get("/me");
 
     return {
         props: {

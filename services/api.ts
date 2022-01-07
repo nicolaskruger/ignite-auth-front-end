@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosRequestHeaders, HeadersDefaults } from "axios";
 import { GetServerSidePropsContext } from "next";
 import { destroyCookie, parseCookies, setCookie } from "nookies";
 import { signOut } from "../contexts/AuthContext";
+import { AuthTokenError } from "./errors/AuthTokenError";
 
 type FailRequest = {
     onSuccess: (token: string) => void,
@@ -85,6 +86,8 @@ export const setupApiClient = (ctx?: GetServerSidePropsContext) => {
                 } else {
                     if (process.browser)
                         signOut()
+                    else
+                        return Promise.reject(new AuthTokenError())
                 }
             return Promise.reject(error)
         })
