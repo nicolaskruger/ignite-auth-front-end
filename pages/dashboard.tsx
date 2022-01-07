@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import { destroyCookie } from "nookies";
 import { useEffect } from "react";
+import { Can } from "../components/Can";
 import { useAuth } from "../contexts/AuthContext";
 import { useCan } from "../hooks/useCan";
 import { setupApiClient } from "../services/api";
@@ -12,10 +13,6 @@ type Result = {}
 const DashBoard: NextPage<Result> = () => {
 
     const { user } = useAuth();
-
-    const userCanSeeMetrics = useCan({
-        permissions: ["metrics.list"]
-    })
 
     useEffect(() => {
         api.get("/me")
@@ -29,7 +26,9 @@ const DashBoard: NextPage<Result> = () => {
             <h1>
                 DashBoard email: {user?.email}
             </h1>
-            {userCanSeeMetrics && <div>Métricas</div>}
+            <Can permissions={["metrics.list"]}>
+                <div>Métricas</div>
+            </Can>
         </>
 
     )
