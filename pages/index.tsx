@@ -3,6 +3,7 @@ import { parseCookies } from 'nookies'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import styles from '../styles/Home.module.css'
+import { withSSRGuest } from '../utils/withSRRGuest'
 
 type Result = {}
 
@@ -39,24 +40,11 @@ const Home: NextPage<Result> = () => {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Result> = async (ctx) => {
-
-  const cookies = parseCookies(ctx);
-
-  if (cookies["nextauth.token"]) {
-    return {
-      redirect: {
-        destination: "/dashboard",
-        permanent: false
-      }
-    }
-  }
-
+export const getServerSideProps: GetServerSideProps<Result> = withSSRGuest(async (ctx) => {
   return {
     props: {
-
     }
   }
-}
+})
 
 export default Home
