@@ -12,7 +12,7 @@ type Result = {}
 
 const DashBoard: NextPage<Result> = () => {
 
-    const { user } = useAuth();
+    const { user, signOut } = useAuth();
 
     useEffect(() => {
         api.get("/me")
@@ -26,6 +26,11 @@ const DashBoard: NextPage<Result> = () => {
             <h1>
                 DashBoard email: {user?.email}
             </h1>
+
+            <button onClick={signOut}>
+                sign Out
+            </button>
+
             <Can permissions={["metrics.list"]}>
                 <div>Métricas</div>
             </Can>
